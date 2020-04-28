@@ -40,6 +40,8 @@ public class Terminal {
      * Might reset cursor position.
      */
     public void clearScreen() {
+        System.out.println(CONTROL_CODE+MOVE);
+        command(CLEAR);
     }
 
     /**
@@ -52,6 +54,8 @@ public class Terminal {
      * @param y Row number.
      */
     public void moveTo(Integer x, Integer y) {
+        String position= x + ";" + y + MOVE;
+        command(position);
     }
 
     /**
@@ -62,6 +66,7 @@ public class Terminal {
      * @param color The color to set.
      */
     public void setColor(Color color) {
+
     }
 
     /**
@@ -72,7 +77,10 @@ public class Terminal {
      * @param color The background color to set.
      */
     public void setBgColor(Color color) {
+        String colorCode = (30 + color.ordinal()) + STYLE;
+        command(colorCode);
     }
+
 
     /**
      * Make printed text underlined.
@@ -118,5 +126,13 @@ public class Terminal {
      * @param commandString The unique part of a command sequence.
      */
     private void command(String commandString) {
+        System.out.println(CONTROL_CODE + commandString);
+    }
+
+    public static void main (String[] args){
+        Terminal term = new Terminal();
+//        term.setBgColor(Color.CYAN);
+        term.clearScreen();
     }
 }
+
