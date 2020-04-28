@@ -32,6 +32,8 @@ public class Terminal {
      * (i.e.: underlined, dim, bright) to the terminal defaults.
      */
     public void resetStyle() {
+        String resetCode = "0m";
+        command(resetCode);
     }
 
     /**
@@ -66,7 +68,9 @@ public class Terminal {
      * @param color The color to set.
      */
     public void setColor(Color color) {
-
+        int initialColorCode = 30;
+        String colorCode = (initialColorCode + color.ordinal()) + STYLE;
+        command(colorCode);
     }
 
     /**
@@ -131,8 +135,7 @@ public class Terminal {
 
     public static void main (String[] args){
         Terminal term = new Terminal();
-//        term.setBgColor(Color.CYAN);
-        term.clearScreen();
+        term.setColor(Color.BLUE);
     }
 }
 
