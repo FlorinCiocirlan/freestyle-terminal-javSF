@@ -1,5 +1,10 @@
 package com.codecool.termlib;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Scanner;
+import javax.sound.sampled.*;
+import javax.swing.*;
 import javax.swing.text.Style;
 
 public class Terminal {
@@ -142,6 +147,33 @@ public class Terminal {
 
     }
 
+    public void playMusic (String musicLocation){
+        try{
+            File musicPath = new File(musicLocation);
+            if(musicPath.exists()){
+                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicPath);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInput);
+                clip.start();
+
+                Thread.sleep(clip.getMicrosecondLength()/1000);
+            }  else {
+                System.out.println("Can't find file");
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private static float getDuration(File file) throws Exception {
+        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
+        AudioFormat format = audioInputStream.getFormat();
+        long audioFileLength = file.length();
+        int frameSize = format.getFrameSize();
+        float frameRate = format.getFrameRate();
+        return ((audioFileLength / (frameSize * frameRate)));
+    }
+
     /**
      * Helper function for sending commands to the terminal.
      *
@@ -151,12 +183,21 @@ public class Terminal {
      * @param commandString The unique part of a command sequence.
      */
     private void command(String commandString) {
-        System.out.println(CONTROL_CODE + commandString + "Hello");
+        System.out.println(CONTROL_CODE + commandString);
     }
 
-    public static void main (String[] args){
+    public static void main (String[] args) throws Exception {
         Terminal term = new Terminal();
-        term.setUnderline();
+        term.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/welcome.wav");
+        System.out.println("Hello, my name is Raja. How can I help you today?");
+        Scanner test = new Scanner(System.in);
+        System.out.println(test.nextLine());
+//        System.out.println(getDuration(new File("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/doYouWantTo.wav")));
+        term.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/change.wav");
+
+//        term.setUnderline();
+//        Scanner test = new Scanner(System.in);
+//        System.out.println(test.nextLine());
     }
 }
 
