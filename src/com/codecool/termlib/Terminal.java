@@ -106,6 +106,18 @@ public class Terminal {
      * @param amount Step the cursor this many times.
      */
     public void moveCursor(Direction direction, Integer amount) {
+        String moveCode;
+        String amountCode = String.valueOf(amount);
+        if (direction == Direction.UP){
+            moveCode = amountCode + "A";
+        } else if (direction == Direction.DOWN){
+            moveCode = amountCode + "B";
+        } else if (direction == Direction.FORWARD){
+            moveCode = amountCode + "C";
+        } else {
+            moveCode = amountCode + "D";
+        }
+        command(moveCode);
     }
 
     /**
@@ -119,6 +131,12 @@ public class Terminal {
      * position.
      */
     public void setChar(char c) {
+        String saveCursorPosition = "s";
+        String returnToSavedPosition = "u";
+        command(saveCursorPosition);
+        System.out.println(c);
+        command(returnToSavedPosition);
+
     }
 
     /**
@@ -134,8 +152,7 @@ public class Terminal {
     }
 
     public static void main (String[] args){
-        Terminal term = new Terminal();
-        term.setColor(Color.BLUE);
+
     }
 }
 
