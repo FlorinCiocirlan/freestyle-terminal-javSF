@@ -180,10 +180,33 @@ public class Terminal {
                     }
                 }
 
+            } else if(input.contains("color")){
+                for(Color color : colorList){
+                    if(input.contains(color.toString().toLowerCase())){
+                        setColor(color);
+                        break;
+                    }
+                }
             }
-//        } else if (input.contains("move")) {
+        } else if (input.contains("move")) {
+            if((input.contains("right")) || (input.contains("left") || (input.contains("up")) || (input.contains("down")))){
+                for(Direction direction : directionList){
+                    if(input.contains(direction.toString())){
+                        String stringNumber = "";
+                        for(int i=0 ; i<input.length(); i++){
+                            char charCheck = input.charAt(i);
+                            if (Character.isDigit(charCheck)){
+                                stringNumber += charCheck;
+                            }
+                        }
+                        int amount = Integer.parseInt(stringNumber);
+                        moveCursor(direction,amount);
+                    }
+                }
+            }
+        }
 //
-//        } else if (input.contains("set")) {
+//         else if (input.contains("set")) {
 //
 //        } else if (input.contains("reset")) {
 //
