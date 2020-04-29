@@ -2,7 +2,10 @@ package com.codecool.termlib;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.stream.Stream;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.text.Style;
@@ -147,32 +150,9 @@ public class Terminal {
 
     }
 
-    public void playMusic (String musicLocation){
-        try{
-            File musicPath = new File(musicLocation);
-            if(musicPath.exists()){
-                AudioInputStream audioInput = AudioSystem.getAudioInputStream(musicPath);
-                Clip clip = AudioSystem.getClip();
-                clip.open(audioInput);
-                clip.start();
 
-                Thread.sleep(clip.getMicrosecondLength()/1000);
-            }  else {
-                System.out.println("Can't find file");
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
-    private static float getDuration(File file) throws Exception {
-        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
-        AudioFormat format = audioInputStream.getFormat();
-        long audioFileLength = file.length();
-        int frameSize = format.getFrameSize();
-        float frameRate = format.getFrameRate();
-        return ((audioFileLength / (frameSize * frameRate)));
-    }
+
 
     /**
      * Helper function for sending commands to the terminal.
@@ -186,14 +166,53 @@ public class Terminal {
         System.out.println(CONTROL_CODE + commandString);
     }
 
+
+    private void validateInput (String input) {
+        ArrayList<Color> colorList = new ArrayList<>(Arrays.asList(Color.values()));
+        ArrayList<Direction> directionList = new ArrayList<>(Arrays.asList(Direction.values()));
+        ArrayList<Attribute> attributeList = new ArrayList<>(Arrays.asList(Attribute.values()));
+        if (input.contains("change")) {
+            if (input.contains("color") && input.contains("background")){
+                for (Color color : colorList){
+                    if (input.contains(color.toString().toLowerCase())){
+                        setBgColor(color);
+                        break;
+                    }
+                }
+
+            }
+//        } else if (input.contains("move")) {
+//
+//        } else if (input.contains("set")) {
+//
+//        } else if (input.contains("reset")) {
+//
+//        } else if (input.contains("clear")) {
+//
+//        } else if (input.contains("help")) {
+//            System.out.println("Help menu:");
+//            System.out.println("Change(Color || BgColor (Black, Red, Green, Yellow, Blue, Magenta, Cyan, White)) , " +
+//                    "Move (direction:amount) , Set(x:y), Reset, Clear ");
+
+        } else {
+            System.out.println("Please consult help menu (Write 'HELP' in console)");
+        }
+    }
+
     public static void main (String[] args) throws Exception {
         Terminal term = new Terminal();
-        term.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/welcome.wav");
+        Music player = new Music();
+
+
+//        Music.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/welcome.wav");
         System.out.println("Hello, my name is Raja. How can I help you today?");
         Scanner test = new Scanner(System.in);
-        System.out.println(test.nextLine());
+        String input = test.nextLine().toLowerCase();
+        term.validateInput(input);
+        System.out.println("Hello, my name is Raja. How can I help you today?");
+//        System.out.println(test.nextLine());
 //        System.out.println(getDuration(new File("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/doYouWantTo.wav")));
-        term.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/change.wav");
+//        Music.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/change.wav");
 
 //        term.setUnderline();
 //        Scanner test = new Scanner(System.in);
