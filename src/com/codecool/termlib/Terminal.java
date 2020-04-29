@@ -1,5 +1,7 @@
 package com.codecool.termlib;
 
+import javax.swing.text.Style;
+
 public class Terminal {
     /**
      * The beginning of control sequences.
@@ -81,7 +83,7 @@ public class Terminal {
      * @param color The background color to set.
      */
     public void setBgColor(Color color) {
-        String colorCode = (30 + color.ordinal()) + STYLE;
+        String colorCode = (40 + color.ordinal()) + STYLE;
         command(colorCode);
     }
 
@@ -94,6 +96,7 @@ public class Terminal {
      * well.
      */
     public void setUnderline() {
+        command(4 + STYLE);
     }
 
     /**
@@ -148,11 +151,12 @@ public class Terminal {
      * @param commandString The unique part of a command sequence.
      */
     private void command(String commandString) {
-        System.out.println(CONTROL_CODE + commandString);
+        System.out.println(CONTROL_CODE + commandString + "Hello");
     }
 
     public static void main (String[] args){
-
+        Terminal term = new Terminal();
+        term.setUnderline();
     }
 }
 
