@@ -1,14 +1,9 @@
 package com.codecool.termlib;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
-import java.util.stream.Stream;
-import javax.sound.sampled.*;
-import javax.swing.*;
-import javax.swing.text.Style;
+
 
 public class Terminal {
     /**
@@ -41,9 +36,13 @@ public class Terminal {
      * Reset the color, background color, and any other style
      * (i.e.: underlined, dim, bright) to the terminal defaults.
      */
-    public void resetStyle() {
+    public void resetStyle() throws InterruptedException {
         String resetCode = "0m";
         command(resetCode);
+    }
+
+    public void savePosition()  {
+        System.out.print("\033[s");
     }
 
     /**
@@ -51,8 +50,8 @@ public class Terminal {
      *
      * Might reset cursor position.
      */
-    public void clearScreen() {
-        System.out.println(CONTROL_CODE+MOVE);
+    public void clearScreen() throws InterruptedException {
+        System.out.print(CONTROL_CODE+MOVE);
         command(CLEAR);
     }
 
@@ -65,7 +64,7 @@ public class Terminal {
      * @param x Column number.
      * @param y Row number.
      */
-    public void moveTo(Integer x, Integer y) {
+    public void moveTo(Integer x, Integer y) throws InterruptedException {
         String position= x + ";" + y + MOVE;
         command(position);
     }
@@ -77,7 +76,7 @@ public class Terminal {
      *
      * @param color The color to set.
      */
-    public void setColor(Color color) {
+    public void setColor(Color color) throws InterruptedException {
         int initialColorCode = 30;
         String colorCode = (initialColorCode + color.ordinal()) + STYLE;
         command(colorCode);
@@ -90,7 +89,7 @@ public class Terminal {
      *
      * @param color The background color to set.
      */
-    public void setBgColor(Color color) {
+    public void setBgColor(Color color) throws InterruptedException {
         String colorCode = (40 + color.ordinal()) + STYLE;
         command(colorCode);
     }
@@ -103,8 +102,10 @@ public class Terminal {
      * underlined.  Cannot be turned off without turning off colors as
      * well.
      */
-    public void setUnderline() {
-        command(4 + STYLE);
+
+    public void setAttribute(Attribute attribute) throws InterruptedException {
+        String styleCode = (attribute.ordinal() + STYLE);
+        command(styleCode);
     }
 
     /**
@@ -116,8 +117,11 @@ public class Terminal {
      * @param direction Step the cursor in this direction.
      * @param amount Step the cursor this many times.
      */
-    public void moveCursor(Direction direction, Integer amount) {
+    public void moveCursor(Direction direction, Integer amount) throws InterruptedException {
         String moveCode;
+        String saveCursorPosition = "s";
+        String returnToSavedPosition = "u";
+        command(returnToSavedPosition);
         String amountCode = String.valueOf(amount);
         if (direction == Direction.UP){
             moveCode = amountCode + "A";
@@ -129,6 +133,7 @@ public class Terminal {
             moveCode = amountCode + "D";
         }
         command(moveCode);
+        command(saveCursorPosition);
     }
 
     /**
@@ -141,7 +146,7 @@ public class Terminal {
      * @param c the literal character to set for the current cursor
      * position.
      */
-    public void setChar(char c) {
+    public void setChar(char c) throws InterruptedException {
         String saveCursorPosition = "s";
         String returnToSavedPosition = "u";
         command(saveCursorPosition);
@@ -149,10 +154,6 @@ public class Terminal {
         command(returnToSavedPosition);
 
     }
-
-
-
-
 
     /**
      * Helper function for sending commands to the terminal.
@@ -162,84 +163,84 @@ public class Terminal {
      *
      * @param commandString The unique part of a command sequence.
      */
-    private void command(String commandString) {
-        System.out.println(CONTROL_CODE + commandString);
+    private void command(String commandString) throws InterruptedException {
+        System.out.print(CONTROL_CODE + commandString);
+        savePosition();
     }
 
-
-    private void validateInput (String input) {
+    private void validateInput (String input) throws InterruptedException {
         ArrayList<Color> colorList = new ArrayList<>(Arrays.asList(Color.values()));
         ArrayList<Direction> directionList = new ArrayList<>(Arrays.asList(Direction.values()));
         ArrayList<Attribute> attributeList = new ArrayList<>(Arrays.asList(Attribute.values()));
         if (input.contains("change")) {
-            if (input.contains("color") && input.contains("background")){
-                for (Color color : colorList){
-                    if (input.contains(color.toString().toLowerCase())){
-                        setBgColor(color);
+            if (input.contains("background")){
+                for (Color background : colorList){
+                    if (input.contains(background.toString().toLowerCase())){
+                        setBgColor(background);
+                        Music.playlistPlay("change", "background",background.toString().toLowerCase());
                         break;
                     }
                 }
 
-            } else if(input.contains("color")){
+            } else if(input.contains("color") && !input.contains("background")){
                 for(Color color : colorList){
                     if(input.contains(color.toString().toLowerCase())){
                         setColor(color);
+                        Music.playlistPlay("change", "color", color.toString().toLowerCase());
                         break;
                     }
                 }
             }
         } else if (input.contains("move")) {
-            if((input.contains("right")) || (input.contains("left") || (input.contains("up")) || (input.contains("down")))){
+            if((input.contains("forward")) || (input.contains("backward") || (input.contains("up")) || (input.contains("down")))){
                 for(Direction direction : directionList){
-                    if(input.contains(direction.toString())){
-                        String stringNumber = "";
+                    if(input.contains(direction.toString().toLowerCase())){
+                        StringBuilder stringNumber = new StringBuilder();
                         for(int i=0 ; i<input.length(); i++){
                             char charCheck = input.charAt(i);
                             if (Character.isDigit(charCheck)){
-                                stringNumber += charCheck;
+                                stringNumber.append(charCheck);
                             }
                         }
-                        int amount = Integer.parseInt(stringNumber);
+                        int amount = Integer.parseInt(stringNumber.toString());
                         moveCursor(direction,amount);
+                        Music.playlistPlay("move", "cursor", direction.toString().toLowerCase());
+                    }
+                }
+            } else {System.out.println("Wrong way!");}
+        } else if (input.contains("help")) {
+            System.out.println("Help menu:");
+            System.out.println("Change(Color || BgColor (Black, Red, Green, Yellow, Blue, Magenta, Cyan, White)) , " +
+                    "Move (direction:amount) , Set(x:y), Reset, Clear ");
+        } else if (input.contains(Keywords.retainCommonWithBase(input).get(0).toLowerCase())){
+            for(Attribute attribute : attributeList){
+                if(input.contains(attribute.toString().toLowerCase())){
+                    setAttribute(attribute);
+                    if (attribute == Attribute.RESET){
+                        Music.playReset();
+                    } else {
+                    Music.playlistPlay("set", "attribute",attribute.toString().toLowerCase());
+                    break;
                     }
                 }
             }
+        } else if (input.contains("clear")) {
+            clearScreen();
+            Music.playClean();
         }
-//
-//         else if (input.contains("set")) {
-//
-//        } else if (input.contains("reset")) {
-//
-//        } else if (input.contains("clear")) {
-//
-//        } else if (input.contains("help")) {
-//            System.out.println("Help menu:");
-//            System.out.println("Change(Color || BgColor (Black, Red, Green, Yellow, Blue, Magenta, Cyan, White)) , " +
-//                    "Move (direction:amount) , Set(x:y), Reset, Clear ");
-
-        } else {
+         else {
             System.out.println("Please consult help menu (Write 'HELP' in console)");
+            Music.playMenu();
         }
     }
 
     public static void main (String[] args) throws Exception {
         Terminal term = new Terminal();
-        Music player = new Music();
-
-
-//        Music.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/welcome.wav");
+        Music.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/welcome.wav");
         System.out.println("Hello, my name is Raja. How can I help you today?");
-        Scanner test = new Scanner(System.in);
-        String input = test.nextLine().toLowerCase();
-        term.validateInput(input);
-        System.out.println("Hello, my name is Raja. How can I help you today?");
-//        System.out.println(test.nextLine());
-//        System.out.println(getDuration(new File("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/doYouWantTo.wav")));
-//        Music.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/change.wav");
+        while (true){
+            Scanner test = new Scanner(System.in);
+            String input = test.nextLine().toLowerCase();
+            term.validateInput(input);
 
-//        term.setUnderline();
-//        Scanner test = new Scanner(System.in);
-//        System.out.println(test.nextLine());
-    }
-}
-
+    }}}

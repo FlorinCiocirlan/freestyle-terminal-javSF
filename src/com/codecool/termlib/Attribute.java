@@ -4,6 +4,7 @@ public enum Attribute {
     RESET,
     BRIGHT,
     DIM,
+    ITALIC,
     UNDERSCORE,
     BLINK,
     REVERSE,

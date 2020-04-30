@@ -8,6 +8,7 @@ import java.io.File;
 
 public class Music {
 
+
     public static void playMusic (String musicLocation){
         try{
             File musicPath = new File(musicLocation);
@@ -35,5 +36,27 @@ public class Music {
         float frameRate = format.getFrameRate();
         return ((audioFileLength / (frameSize * frameRate)));
 
+    }
+
+    static void playlistPlay(String _action, String _object, String _item) throws InterruptedException {
+        playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/" + _action + ".wav");
+        playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/" + _object + ".wav");
+        playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/"+ _item +".wav");
+        Thread.sleep(1200);
+        Music.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/else.wav");
+    }
+
+    static void playClean() throws InterruptedException {
+        Music.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/clear.wav");
+        Thread.sleep(1200);
+        Music.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/else.wav");
+    }
+
+    static void playMenu()  {
+        Music.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/help.wav");
+    }
+
+    static void playReset(){
+        Music.playMusic("/Users/durlesteanu/codecool/OOP/tw_1/javaTerminal/music/reset.wav");
     }
 }
